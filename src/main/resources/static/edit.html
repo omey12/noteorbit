@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Edit Profile</title>
+
+<style>
+body{
+background:#1e1e2f;
+color:white;
+text-align:center;
+font-family:Arial;
+margin:0;
+}
+
+/* 🔥 BACK BUTTON */
+.backBtn{
+position:fixed;
+top:20px;
+left:20px;
+width:60px;
+height:60px;
+border-radius:50%;
+background:linear-gradient(135deg,#00c6ff,#0072ff);
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+font-size:13px;
+font-weight:bold;
+cursor:pointer;
+z-index:999;
+
+/* Glass Effect */
+backdrop-filter:blur(10px);
+
+/* Glow */
+box-shadow:0 0 10px #00c6ff;
+
+/* Animation */
+animation:float 3s ease-in-out infinite;
+transition:0.3s;
+}
+
+/* Hover effect */
+.backBtn:hover{
+transform:scale(1.2) rotate(-10deg);
+box-shadow:0 0 25px #00c6ff, 0 0 50px #00c6ff;
+}
+
+/* Floating animation */
+@keyframes float{
+0%{ transform:translateY(0px); }
+50%{ transform:translateY(-8px); }
+100%{ transform:translateY(0px); }
+}
+
+/* 🔥 BACK BUTTON */
+.backBtn{
+position:fixed;
+top:20px;
+left:20px;
+width:60px;
+height:60px;
+border-radius:50%;
+border:none;
+background:linear-gradient(135deg,#00c6ff,#0072ff);
+color:white;
+font-size:14px;
+cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+box-shadow:0 0 15px rgba(0,0,0,0.5);
+transition:0.3s;
+animation:pulse 2s infinite;
+}
+
+.backBtn:hover{
+transform:scale(1.2) rotate(-10deg);
+box-shadow:0 0 25px #00c6ff;
+}
+
+@keyframes pulse{
+0%{box-shadow:0 0 10px #00c6ff;}
+50%{box-shadow:0 0 25px #00c6ff;}
+100%{box-shadow:0 0 10px #00c6ff;}
+}
+
+/* 🔥 LOGO */
+.logo{
+position:fixed;
+top:20px;
+right:20px;
+font-size:20px;
+font-weight:bold;
+animation:glow 2s infinite alternate;
+}
+
+@keyframes glow{
+from{color:white;}
+to{color:#00c6ff;}
+}
+
+/* FORM */
+.container{
+margin-top:100px;
+}
+
+input{
+padding:10px;
+margin:10px;
+border-radius:10px;
+border:none;
+width:250px;
+}
+
+button.save{
+padding:10px 20px;
+border:none;
+border-radius:10px;
+background:#00c6ff;
+color:white;
+cursor:pointer;
+transition:0.3s;
+}
+
+button.save:hover{
+transform:scale(1.1);
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- 🔥 BACK -->
+<!-- 🔥 Animated Back Button -->
+<div class="backBtn" onclick="goBack()">Back</div>
+
+<!-- 🔥 LOGO -->
+<div class="logo">NoteOrbit</div>
+
+<div class="container">
+
+<h2>Edit Profile</h2>
+
+<input id="name" placeholder="Name"><br>
+<input id="college" placeholder="College"><br>
+<input id="dept" placeholder="Dept"><br>
+<input id="year" placeholder="Year"><br>
+<input id="className" placeholder="Class"><br>
+
+<br>
+
+<input type="file" id="photo"><br><br>
+
+<button class="save" onclick="update()">Save Changes</button>
+
+</div>
+
+<script>
+
+
+
+function goBack(){
+    window.location.href="dashboard.html";
+}
+
+let user=JSON.parse(localStorage.getItem("user"));
+
+/* 🔥 Fill existing data */
+name.value=user.name;
+college.value=user.college;
+dept.value=user.dept;
+year.value=user.year;
+className.value=user.className;
+
+/* 🔥 UPDATE FUNCTION (FINAL FIX) */
+function update(){
+
+let file=document.getElementById("photo").files[0];
+
+if(file){
+
+let reader=new FileReader();
+
+reader.onload=function(){
+user.photo=reader.result;
+sendUpdate();
+}
+
+reader.readAsDataURL(file);
+
+}else{
+sendUpdate();
+}
+
+}
+
+/* 🔥 SEND TO BACKEND (IMPORTANT) */
+function sendUpdate(){
+
+fetch("http://localhost:8383/auth/update",{
+method:"PUT",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(user)
+})
+.then(res=>res.json())
+.then(data=>{
+
+localStorage.setItem("user",JSON.stringify(data));
+
+alert("Profile Saved Permanently ");
+
+});
+
+}
+
+</script>
+
+</body>
+</html>

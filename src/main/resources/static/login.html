@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>NoteOrbit</title>
+
+<style>
+body{
+margin:0;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background: linear-gradient(270deg,#1e3c72,#2a5298,#6a11cb);
+background-size:600% 600%;
+animation: gradientMove 10s ease infinite;
+font-family: Arial;
+}
+
+@keyframes gradientMove{
+0%{background-position:0%}
+50%{background-position:100%}
+100%{background-position:0%}
+}
+
+.box{
+backdrop-filter: blur(20px);
+background: rgba(255,255,255,0.1);
+padding:30px;
+border-radius:20px;
+text-align:center;
+color:white;
+width:300px;
+}
+
+.logo{
+font-size:28px;
+font-weight:bold;
+margin-bottom:20px;
+}
+
+input{
+width:90%;
+padding:10px;
+margin:10px;
+border:none;
+border-radius:10px;
+}
+
+button{
+padding:10px 20px;
+border:none;
+border-radius:10px;
+background:#00c6ff;
+color:white;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+transform:scale(1.1);
+}
+
+.show{
+cursor:pointer;
+font-size:13px;
+}
+
+.loader{
+display:none;
+margin-top:10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<div class="logo"> NoteOrbit</div>
+
+<input id="email" placeholder="Email">
+
+<input id="password" type="password" placeholder="Password">
+
+<div class="show" onclick="togglePassword()"> Show Password</div>
+
+<br>
+
+<button onclick="login()">Login</button>
+
+<div class="loader" id="loader"> Logging in...</div>
+
+<p style="margin-top:15px;">
+Don't have an account?
+<a href="register.html" style="color:#00c6ff;">Register</a>
+</p>
+
+</div>
+
+<script>
+
+
+
+/* Auto Login Session */
+let user = JSON.parse(localStorage.getItem("user"));
+
+if(user && user.id){
+    window.location.href="dashboard.html";
+}
+
+/* Show Hide Password */
+
+function togglePassword(){
+
+let pass=document.getElementById("password");
+
+if(pass.type==="password"){
+pass.type="text";
+}else{
+pass.type="password";
+}
+
+}
+
+/* Login Function */
+
+function login(){
+
+document.getElementById("loader").style.display="block";
+
+fetch(`http://localhost:8383/auth/login?email=${email.value}&password=${password.value}`,{
+method:"POST"
+})
+
+.then(res => {
+    document.getElementById("loader").style.display="none";
+
+    if(!res.ok){
+        throw new Error("Invalid login");
+    }
+    return res.json();
+})
+
+.then(data=>{
+
+localStorage.setItem("user", JSON.stringify(data));
+
+window.location.href="dashboard.html";
+
+})
+
+.catch(err=>{
+alert("Invalid Email or Password ");
+});
+
+}
+
+</script>
+
+</body>
+</html>

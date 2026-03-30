@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dashboard</title>
+
+<style>
+body {
+    margin:0;
+    font-family:Arial;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    color:white;
+}
+
+.navbar {
+    display:flex;
+    justify-content:space-between;
+    padding:15px;
+    background:#1c1c2b;
+}
+
+.logo {
+    font-size:22px;
+    font-weight:bold;
+}
+
+.menu a {
+    margin:10px;
+    color:white;
+    text-decoration:none;
+    cursor:pointer;
+}
+
+.container {
+    display:grid;
+    grid-template-columns: repeat(2, 200px);
+    gap:20px;
+    justify-content:center;
+    margin-top:50px;
+}
+
+.card {
+    padding:20px;
+    border-radius:15px;
+    background:rgba(255,255,255,0.1);
+    text-align:center;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.card:hover {
+    transform:scale(1.1);
+    background:#00c6ff;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="navbar">
+<div class="logo"> NoteOrbit</div>
+<div class="menu">
+<a href="profile.html">Profile</a>
+<a href="myuploads.html">My Uploads</a>
+<a href="search.html">Search</a>
+<a href="#" onclick="logout()">Logout</a></div>
+</div>
+
+<div class="container">
+
+<div class="card" onclick="goUpload()">Upload Notes</div>
+<div class="card" onclick="goView()">View Notes</div>
+<div class="card" onclick="goMembers()">Members</div>
+<div class="card" onclick="goEdit()">Edit Profile</div>
+
+</div>
+
+<script>
+
+l
+
+
+// 🔥 SESSION CHECK (VERY IMPORTANT)
+let user = JSON.parse(localStorage.getItem("user"));
+
+if(!user || !user.id){
+    alert("Login first bro 🔒");
+    window.location.href="login.html";
+}
+
+// 🔥 LOGOUT FUNCTION (FIXED)
+function logout(){
+    localStorage.removeItem("user");
+    window.location.href = "login.html";
+}
+
+
+// NAVIGATION
+function goUpload(){location.href="upload.html";}
+function goView(){location.href="view.html";}
+function goMembers(){location.href="members.html";}
+function goEdit(){location.href="edit.html";}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Search</title>
+
+<style>
+body{
+margin:0;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+font-family:Arial;
+color:white;
+}
+
+.back{
+position:fixed;
+top:20px;
+left:20px;
+width:55px;
+height:55px;
+border-radius:50%;
+background:#00c6ff;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+}
+
+.logo{
+position:fixed;
+top:20px;
+left:90px;
+font-weight:bold;
+}
+
+.container{
+text-align:center;
+margin-top:100px;
+}
+
+input{
+padding:12px;
+width:300px;
+border-radius:10px;
+border:none;
+}
+
+.card{
+margin:15px auto;
+width:600px;
+padding:15px;
+border-radius:12px;
+background:rgba(255,255,255,0.1);
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="back" onclick="location.href='dashboard.html'">Back</div>
+<div class="logo">NoteOrbit</div>
+
+<div class="container">
+
+<h2>Search Notes</h2>
+
+<input id="keyword" onkeyup="search()" placeholder="Search...">
+
+<div id="data"></div>
+
+</div>
+
+<script>
+
+let user = JSON.parse(localStorage.getItem("user"));
+
+function search(){
+
+let k = keyword.value.toLowerCase();
+
+fetch(`http://localhost:8383/notes/all?email=${user.email}`)
+.then(res=>res.json())
+.then(list=>{
+
+let out="";
+
+list.forEach(n=>{
+
+if(n.title.toLowerCase().includes(k) || n.subject.toLowerCase().includes(k)){
+
+out+=`
+<div class="card">
+
+<div>
+<b>${n.title}</b>
+<br>
+${n.uploadedBy} | ${n.dept} | ${n.className}
+</div>
+
+<button onclick='openNote(${JSON.stringify(n)})'>View</button>
+
+</div>
+`;
+}
+
+});
+
+data.innerHTML=out;
+
+});
+}
+
+function openNote(note){
+localStorage.setItem("viewNote", JSON.stringify(note));
+location.href="viewNote.html";
+}
+
+</script>
+
+</body>
+</html>

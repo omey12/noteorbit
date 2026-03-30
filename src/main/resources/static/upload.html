@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Upload</title>
+
+<style>
+body{
+  background: linear-gradient(135deg,#232526,#414345);
+  font-family: Arial;
+  color: white;
+  text-align: center;
+  padding: 0 15px;
+}
+
+/* 🔥 BACK BUTTON */
+.backBtn{
+position:fixed;
+top:20px;
+left:20px;
+width:60px;
+height:60px;
+border-radius:50%;
+background:linear-gradient(135deg,#00c6ff,#0072ff);
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+font-size:13px;
+font-weight:bold;
+cursor:pointer;
+z-index:999;
+backdrop-filter:blur(10px);
+box-shadow:0 0 10px #00c6ff;
+animation:float 3s ease-in-out infinite;
+transition:0.3s;
+}
+
+.backBtn:hover{
+transform:scale(1.2) rotate(-10deg);
+box-shadow:0 0 25px #00c6ff, 0 0 50px #00c6ff;
+}
+
+@keyframes float{
+0%{ transform:translateY(0px); }
+50%{ transform:translateY(-8px); }
+100%{ transform:translateY(0px); }
+}
+
+/* 🔥 MAIN BOX (VERTICAL FIX) */
+.box {
+  margin: 120px auto 50px auto;
+  padding: 30px;
+  border-radius: 15px;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+
+  max-width: 700px; /* 🔥 increased width */
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* 🔥 FULL WIDTH INPUTS */
+.box input, .box textarea, .box button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+}
+
+/* labels */
+label{
+  text-align:left;
+  font-size:14px;
+}
+
+/* textarea height */
+textarea{
+  min-height:100px;
+}
+
+/* button */
+button{
+  background:#00c9ff;
+  color:white;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="backBtn" onclick="goBack()">Back</div>
+
+<div class="box">
+
+<h2>Upload Notes</h2>
+
+<label>Title</label>
+<input id="title" placeholder="Enter title">
+
+<label>Subject</label>
+<input id="subject" placeholder="Enter subject">
+
+<label>Notes</label>
+<textarea id="text" placeholder="Write notes..."></textarea>
+
+<label>Upload File (PDF / Image)</label>
+<input type="file" id="file" accept=".pdf,.png,.jpg,.jpeg">
+
+<button onclick="upload()">Upload</button>
+
+</div>
+
+<script>
+
+function goBack(){
+    if(document.referrer !== ""){
+        window.history.back();
+    } else {
+        window.location.href = "dashboard.html";
+    }
+}
+
+function upload(){
+
+let user = JSON.parse(localStorage.getItem("user"));
+
+if(!user){
+    alert("Login first!");
+    return;
+}
+
+let fileInput = document.getElementById("file");
+let file = fileInput.files[0];
+
+/* ✅ FILE VALIDATION */
+if(file){
+
+    let allowedTypes = [
+        "application/pdf",
+        "image/png",
+        "image/jpeg",
+        "image/jpg"
+    ];
+
+    if(!allowedTypes.includes(file.type)){
+        alert("❌ Only PDF or Images allowed!");
+        return;
+    }
+
+    let maxSize = 5 * 1024 * 1024; // 5MB
+
+    if(file.size > maxSize){
+        alert("❌ File too large! Max 5MB allowed.");
+        return;
+    }
+}
+
+let formData = new FormData();
+
+formData.append("title", document.getElementById("title").value);
+formData.append("subject", document.getElementById("subject").value);
+formData.append("text", document.getElementById("text").value);
+
+if(file){
+    formData.append("file", file);
+}
+
+formData.append("email", user.email);
+
+/* 🔥 API CALL */
+fetch("http://localhost:8383/notes/upload",{
+    method:"POST",
+    body:formData
+})
+.then(res => {
+    if(!res.ok){
+        throw new Error("Upload failed!");
+    }
+    return res.text();
+})
+.then(msg => {
+    alert("✅ " + msg);
+})
+.catch(err => {
+    alert("❌ Error: " + err.message);
+});
+
+}
+
+</script>
+
+</body>
+</html>

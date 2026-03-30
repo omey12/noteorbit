@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>View Note</title>
+
+<style>
+body {
+    margin: 0;
+    background: #111;
+    color: white;
+    font-family: Arial;
+    text-align: center;
+}
+
+/* 🔙 Back button */
+.back {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: #00c6ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* Note card styling */
+.note-card {
+    background: #1e1e2f;
+    color: white;
+    padding: 20px;
+    margin: 15px auto;
+    border-radius: 12px;
+    width: 70%;
+    text-align: left;
+}
+
+.note-card pre {
+    white-space: pre-wrap;
+    background: #2a2a3d;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+/* Image & PDF inside note card */
+.note-card img, .note-card iframe {
+    max-width: 100%;
+    margin-top: 10px;
+    border-radius: 10px;
+}
+
+.card {
+    margin: 100px auto;
+    width: 70%;
+    padding: 20px;
+    border-radius: 15px;
+    background: rgba(255,255,255,0.1);
+}
+
+button {
+    margin-right: 10px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    background: #00c6ff;
+    color: #111;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #0072ff;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="back" onclick="history.back()">Back</div>
+
+<!-- 🔥 Notes Container -->
+<div id="notesContainer"></div>
+
+<!-- Legacy card (kept but FIXED) -->
+<div class="card" id="data"></div>
+
+<script>
+
+// 🔥 Legacy single note display (FIXED preview URLs)
+let note = JSON.parse(localStorage.getItem("viewNote"));
+if(note){
+    let html = `
+    <h2>${note.title}</h2>
+    <p><b>${note.subject}</b></p>
+    <p>${note.uploadedBy}</p>
+    <p>${note.dept} | ${note.className}</p>
+    `;
+    if(note.text){
+        html += `<pre>${note.text}</pre>`;
+    }
+    if(note.filename){
+        if(note.fileType && note.fileType.includes("image")){
+            html += `<img src="http://localhost:8383/notes/preview/${note.id}">`;
+        }
+        else if(note.fileType && note.fileType.includes("pdf")){
+            html += `<iframe src="http://localhost:8383/notes/preview/${note.id}" height="400"></iframe>`;
+        }
+        else{
+            html += `<a href="http://localhost:8383/notes/download/${note.id}" target="_blank">Download File</a>`;
+        }
+    }
+    document.getElementById("data").innerHTML = html;
+}
+
+// 🔥 Dynamic notes loader
+function loadNotes() {
+    const email = localStorage.getItem("email");
+
+    fetch(`http://localhost:8383/notes/all?email=${email}`)
+        .then(res => res.json())
+        .then(data => {
+
+            let container = document.getElementById("notesContainer");
+            container.innerHTML = "";
+
+            data.forEach(note => {
+
+                let filePreview = "";
+
+                // 🖼 IMAGE
+                if (note.fileType && note.fileType.startsWith("image")) {
+                    filePreview = `
+                        <img src="http://localhost:8383/notes/preview/${note.id}" 
+                             style="max-width:300px; border-radius:10px; margin-top:10px;">
+                    `;
+                }
+
+                // 📄 PDF
+                else if (note.fileType === "application/pdf") {
+                    filePreview = `
+                        <iframe src="http://localhost:8383/notes/preview/${note.id}" 
+                                width="100%" height="400px"></iframe>
+                    `;
+                }
+
+                // 📎 OTHER FILE
+                else if (note.filename) {
+                    filePreview = `
+                        <a href="http://localhost:8383/notes/download/${note.id}" target="_blank">
+                            Download File
+                        </a>
+                    `;
+                }
+
+                container.innerHTML += `
+                    <div class="note-card">
+                        <h3>${note.title}</h3>
+                        <p><b>${note.subject}</b></p>
+
+                        ${note.text ? `<pre>${note.text}</pre>` : ""}
+
+                        ${filePreview}
+
+                        <br><br>
+                        <button onclick="likeNote(${note.id})">👍 ${note.likes}</button>
+                        <button onclick="downloadNote(${note.id})">⬇ ${note.downloads}</button>
+                    </div>
+                `;
+            });
+        });
+}
+
+function likeNote(id) {
+    fetch(`http://localhost:8383/notes/like?id=${id}`, { method: "PUT" })
+        .then(() => loadNotes());
+}
+
+function downloadNote(id) {
+
+    // ✅ download count update + UI refresh
+    fetch(`http://localhost:8383/notes/download-count?id=${id}`, {
+        method: "PUT"
+    }).then(() => loadNotes());
+
+    // ✅ actual file download
+    window.open(`http://localhost:8383/notes/download/${id}`, "_blank");
+}
+
+window.onload = loadNotes;
+
+</script>
+
+</body>
+</html>

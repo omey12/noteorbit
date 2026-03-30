@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Members</title>
+
+<style>
+body{
+margin:0;
+background:linear-gradient(135deg,#141e30,#243b55);
+color:white;
+font-family:Arial;
+}
+
+/* BACK */
+.back{
+position:fixed;
+top:20px;
+left:20px;
+width:55px;
+height:55px;
+border-radius:50%;
+background:#00c6ff;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+}
+
+/* LOGO */
+.logo{
+position:fixed;
+top:20px;
+left:90px;
+font-weight:bold;
+}
+
+/* MEMBER LABEL */
+.member{
+margin:15px auto;
+width:700px;
+padding:12px;
+border-radius:10px;
+background:rgba(255,255,255,0.1);
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.info{
+font-size:13px;
+opacity:0.8;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="back" onclick="goBack()">Back</div>
+<div class="logo">NoteOrbit</div>
+
+<h2 style="text-align:center;margin-top:80px;">Group Members</h2>
+
+<div id="data"></div>
+
+<script>
+
+
+
+function goBack(){
+location.href="dashboard.html";
+}
+
+let user = JSON.parse(localStorage.getItem("user"));
+
+fetch(`http://localhost:8383/notes/members?email=${user.email}`)
+.then(res=>res.json())
+.then(list=>{
+
+let out="";
+
+list.forEach(u=>{
+
+out+=`
+<div class="member">
+
+<div>
+<b>${u.name}</b>
+<div class="info">
+${u.dept} | ${u.year} | ${u.className}
+</div>
+</div>
+
+</div>
+`;
+
+});
+
+data.innerHTML=out;
+
+});
+
+</script>
+
+</body>
+</html>

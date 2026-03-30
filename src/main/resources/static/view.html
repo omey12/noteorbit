@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>View Notes</title>
+
+<style>
+body{
+margin:0;
+background:#0f172a;
+color:white;
+font-family:Arial;
+}
+
+/* 🔥 LOGO */
+.logo{
+position:fixed;
+top:20px;
+right:20px;
+font-size:20px;
+font-weight:bold;
+animation:glow 2s infinite alternate;
+}
+
+@keyframes glow{
+from{color:white;}
+to{color:#00c6ff;}
+}
+
+/* 🔥 BACK BUTTON */
+.backBtn{
+position:fixed;
+top:20px;
+left:20px;
+width:60px;
+height:60px;
+border-radius:50%;
+background:linear-gradient(135deg,#00c6ff,#0072ff);
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+font-size:13px;
+font-weight:bold;
+cursor:pointer;
+z-index:999;
+
+/* Glass Effect */
+backdrop-filter:blur(10px);
+
+/* Glow */
+box-shadow:0 0 10px #00c6ff;
+
+/* Animation */
+animation:float 3s ease-in-out infinite;
+transition:0.3s;
+}
+
+/* Hover effect */
+.backBtn:hover{
+transform:scale(1.2) rotate(-10deg);
+box-shadow:0 0 25px #00c6ff, 0 0 50px #00c6ff;
+}
+
+/* Floating animation */
+@keyframes float{
+0%{ transform:translateY(0px); }
+50%{ transform:translateY(-8px); }
+100%{ transform:translateY(0px); }
+}
+/* 🔥 LIST BAR */
+.note{
+margin:20px;
+padding:15px;
+background:rgba(255,255,255,0.1);
+border-radius:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.info{
+text-align:left;
+}
+
+button{
+padding:8px 15px;
+border:none;
+border-radius:8px;
+background:#00c6ff;
+color:white;
+cursor:pointer;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="logo">NoteOrbit</div>
+<!-- 🔥 Animated Back Button -->
+<div class="backBtn" onclick="goBack()">Back</div>
+
+<div id="data"></div>
+
+<script>
+
+function goBack(){
+location.href="dashboard.html";
+}
+
+let user=JSON.parse(localStorage.getItem("user"));
+
+fetch(`http://localhost:8383/notes/all?email=${user.email}`)
+.then(res=>res.json())
+.then(list=>{
+
+let out="";
+
+list.forEach(n=>{
+
+out+=`
+
+<div class="note">
+
+<div class="info">
+<b style="font-size:18px">${n.uploadedBy}</b><br>
+${n.college} | ${n.dept} | ${n.year} | ${n.className}
+<br>
+${n.title} (${n.subject})
+</div>
+
+<button onclick="openNote(${n.id})">View</button>
+
+</div>
+
+`;
+
+});
+
+data.innerHTML=out;
+
+});
+
+function openNote(id){
+
+fetch(`http://localhost:8383/notes/all?email=${user.email}`)
+.then(res=>res.json())
+.then(list=>{
+
+let n=list.find(x=>x.id==id);
+
+let html=`
+
+<h2>${n.title}</h2>
+
+<p>${n.text || ""}</p>
+
+`;
+
+if(n.filename){
+
+if(n.fileType.includes("image")){
+html+=`<img src="uploads/${n.filename}" width="300">`;
+}else{
+html+=`<embed src="uploads/${n.filename}" width="400" height="400">`;
+}
+
+html+=`<br><a href="uploads/${n.filename}" download>Download</a>`;
+
+}
+
+document.body.innerHTML+=html;
+
+});
+
+}
+
+</script>
+
+</body>
+</html>

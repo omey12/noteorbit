@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My Uploads</title>
+
+<style>
+body{
+margin:0;
+background:#232526;
+color:white;
+font-family:Arial;
+}
+
+.back{
+position:fixed;
+top:20px;
+left:20px;
+width:55px;
+height:55px;
+border-radius:50%;
+background:#00c6ff;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+}
+
+.card{
+margin:100px auto;
+width:600px;
+padding:15px;
+border-radius:12px;
+background:rgba(255,255,255,0.1);
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+button{
+margin:3px;
+padding:6px 10px;
+border:none;
+border-radius:8px;
+background:#00c6ff;
+color:white;
+cursor:pointer;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="back" onclick="location.href='dashboard.html'">Back</div>
+
+<h2 style="text-align:center;margin-top:80px;">My Uploads</h2>
+
+<div id="data"></div>
+
+<script>
+
+// ✅ user ek hi baar lo
+let user = JSON.parse(localStorage.getItem("user"));
+
+// ✅ session check
+if(!user || !user.id){
+    alert("Login first bro 🔒");
+    window.location.href = "login.html";
+}
+
+// ✅ fetch data
+fetch(`http://localhost:8383/notes/my?name=${user.name}`)
+.then(res=>res.json())
+.then(list=>{
+
+let out="";
+
+list.forEach(n=>{
+
+out+=`
+<div class="card">
+
+<div>
+<b>${n.title}</b>
+<br>${n.subject}
+</div>
+
+<div>
+<button onclick='openNote(${JSON.stringify(n)})'>View</button>
+<button onclick="del(${n.id})">Delete</button>
+<button onclick="edit(${n.id})">Edit</button>
+</div>
+
+</div>
+`;
+
+});
+
+data.innerHTML=out;
+
+});
+
+// ✅ open note
+function openNote(note){
+localStorage.setItem("viewNote", JSON.stringify(note));
+location.href="viewNote.html";
+}
+
+// ✅ delete
+function del(id){
+fetch(`http://localhost:8383/notes/delete?id=${id}`,{
+method:"DELETE"
+}).then(()=>location.reload());
+}
+
+// ✅ edit
+function edit(id){
+
+let title = prompt("New title");
+let text = prompt("New text");
+
+fetch(`http://localhost:8383/notes/update?id=${id}&title=${title}&text=${text}`,{
+method:"PUT"
+}).then(()=>location.reload());
+
+}
+
+</script>
+
+</script>
+
+</body>
+</html>
