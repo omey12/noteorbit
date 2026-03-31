@@ -1,5 +1,6 @@
-FROM openjdk:17
+FROM openjdk:17-jdk-slim
 WORKDIR /app
 COPY . .
+RUN chmod +x mvnw
 RUN ./mvnw clean install
 CMD ["java", "-jar", "target/*.jar"]
